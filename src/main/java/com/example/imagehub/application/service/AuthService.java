@@ -5,6 +5,11 @@ import com.example.imagehub.application.port.out.TokenProviderPort;
 import com.example.imagehub.application.port.out.UserRepositoryPort;
 import com.example.imagehub.domain.model.UserModel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +19,7 @@ public class AuthService implements AuthUseCase {
     private final UserRepositoryPort userRepository;
     private final TokenProviderPort tokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public String signUp(UserModel userModel) {
@@ -24,13 +30,12 @@ public class AuthService implements AuthUseCase {
 
     @Override
     public String login(String userId, String password) {
-        UserModel userModel = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
-
-        if (!passwordEncoder.matches(password, userModel.getPassword())) {
+        var unauthenticatedToken = UsernamePasswordAuthenticationToken.unauthenticated(userId, password);
+        var authentication = authenticationManager.authenticate(unauthenticatedToken);
+        if (!authentication.isAuthenticated()) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        return tokenProvider.generateToken(userId, userModel.getRole());
+        return tokenProvider.generateToken(authentication);
     }
 }

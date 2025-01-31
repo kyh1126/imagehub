@@ -5,12 +5,12 @@ import com.example.imagehub.application.port.out.UserRepositoryPort;
 import com.example.imagehub.domain.model.UserModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class AuthServiceTest {
@@ -19,13 +19,15 @@ class AuthServiceTest {
     private UserRepositoryPort userRepositoryPort;
     private TokenProviderPort tokenProviderPort;
     private BCryptPasswordEncoder passwordEncoder;
+    private AuthenticationManager authenticationManager;
 
     @BeforeEach
     void setUp() {
         userRepositoryPort = mock(UserRepositoryPort.class);
         tokenProviderPort = mock(TokenProviderPort.class);
         passwordEncoder = new BCryptPasswordEncoder();
-        authService = new AuthService(userRepositoryPort, tokenProviderPort, passwordEncoder);
+        authenticationManager = mock(AuthenticationManager.class);
+        authService = new AuthService(userRepositoryPort, tokenProviderPort, passwordEncoder, authenticationManager);
     }
 
     @Test
@@ -39,18 +41,26 @@ class AuthServiceTest {
 
     @Test
     void loginShouldReturnTokenWhenCredentialsAreValid() {
-        UserModel userModel = new UserModel("test1", "testUser", passwordEncoder.encode("password123"), "USER");
-        when(userRepositoryPort.findByUserId("test1")).thenReturn(Optional.of(userModel));
-        when(tokenProviderPort.generateToken("test1", "USER")).thenReturn("mockedToken");
+        String userId = "test1";
+        String rawPassword = "password123";
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+        UserModel userModel = new UserModel(userId, "testUser", encodedPassword, "USER");
 
-        String token = authService.login("test1", "password123");
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(authentication);
+        when(tokenProviderPort.generateToken(authentication)).thenReturn("mockedToken");
+
+        String token = authService.login(userId, rawPassword);
 
         assertEquals("mockedToken", token);
     }
 
     @Test
     void loginShouldThrowExceptionWhenCredentialsAreInvalid() {
-        when(userRepositoryPort.findByUserId("test1")).thenReturn(Optional.empty());
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.isAuthenticated()).thenReturn(false);
 
         assertThrows(RuntimeException.class, () -> authService.login("test1", "wrongPassword"));
     }
