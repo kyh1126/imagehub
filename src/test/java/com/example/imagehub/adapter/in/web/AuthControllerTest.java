@@ -1,13 +1,12 @@
 package com.example.imagehub.adapter.in.web;
 
-import com.example.imagehub.adapter.in.security.JwtAuthenticationFilter;
 import com.example.imagehub.application.port.in.AuthUseCase;
 import com.example.imagehub.domain.model.UserModel;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.imagehub.infrastructure.config.TestSecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,9 +18,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@MockitoBean(types = JpaMetamodelMappingContext.class)
-@WebMvcTest(AuthAdapter.class)
-class AuthAdapterTest {
+@Import(TestSecurityConfig.class) // Test 전용 Security 설정
+@WebMvcTest(AuthController.class)
+class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -30,23 +29,24 @@ class AuthAdapterTest {
     private JwtDecoder jwtDecoder;
 
     @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @MockitoBean
     private AuthUseCase authUseCase;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
     void signUpShouldReturnSuccessMessage() throws Exception {
-        UserModel userModel = new UserModel("test1", "testUser", "password123", "USER");
+        var requestJson = """
+                    {
+                        "userId": "test1",
+                        "username": "testUser",
+                        "password": "password123",
+                        "role": "USER"
+                    }
+                """;
 
         when(authUseCase.signUp(any(UserModel.class))).thenReturn("User registered successfully");
 
         mockMvc.perform(post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userModel)))
+                        .content(requestJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("User registered successfully"));
     }

@@ -23,11 +23,8 @@ public class SwaggerConfig {
     }
 
     private List<Server> getServers() {
-        String baseUrl;
-        String description;
-
-        baseUrl = "http://localhost:8080";
-        description = "for local testing";
+        String baseUrl = "http://localhost:8080";// http://localhost:8080/swagger-ui/index.html
+        String description = "for local";
 
         return List.of(new Server().url(baseUrl).description(description));
     }

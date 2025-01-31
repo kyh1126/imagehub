@@ -2,6 +2,7 @@ package com.example.imagehub.application.service;
 
 import com.example.imagehub.application.port.out.UserRepositoryPort;
 import com.example.imagehub.domain.model.UserModel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,14 +13,10 @@ import org.springframework.stereotype.Service;
  * 사용자 관련 비즈니스 로직을 처리하는 서비스
  */
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepositoryPort userRepositoryPort;
     private final PasswordEncoder passwordEncoder;
-
-    public UserService(UserRepositoryPort userRepositoryPort, PasswordEncoder passwordEncoder) {
-        this.userRepositoryPort = userRepositoryPort;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * 새로운 사용자 저장 (회원가입)

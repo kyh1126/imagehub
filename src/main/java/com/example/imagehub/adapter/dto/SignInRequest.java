@@ -1,13 +1,15 @@
 package com.example.imagehub.adapter.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class SignUpRequest {
+public class SignInRequest {
+    @NotBlank
     private String userId;
-    private String username;
+    @NotBlank
     private String password;
-    private String role = "USER";
 }

@@ -4,20 +4,16 @@ import com.example.imagehub.application.port.in.AuthUseCase;
 import com.example.imagehub.application.port.out.TokenProviderPort;
 import com.example.imagehub.application.port.out.UserRepositoryPort;
 import com.example.imagehub.domain.model.UserModel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService implements AuthUseCase {
     private final UserRepositoryPort userRepository;
     private final TokenProviderPort tokenProvider;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthService(UserRepositoryPort userRepository, TokenProviderPort tokenProvider, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.tokenProvider = tokenProvider;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Override
     public String signUp(UserModel userModel) {

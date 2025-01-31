@@ -2,17 +2,15 @@ package com.example.imagehub.adapter.out.persistence;
 
 import com.example.imagehub.application.port.out.UserRepositoryPort;
 import com.example.imagehub.domain.model.UserModel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class UserPersistentAdapter implements UserRepositoryPort {
     private final SpringDataUserRepository userRepository;
-
-    public UserPersistentAdapter(SpringDataUserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public void save(UserModel userModel) {
