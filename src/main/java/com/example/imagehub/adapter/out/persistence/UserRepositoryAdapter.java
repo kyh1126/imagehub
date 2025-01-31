@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class UserPersistentAdapter implements UserRepositoryPort {
+public class UserRepositoryAdapter implements UserRepositoryPort {
     private final SpringDataUserRepository userRepository;
 
     @Override

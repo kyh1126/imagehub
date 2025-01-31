@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("auth")
-@Tag(name = "Auth", description = "회원가입, 로그인 API")
+@Tag(name = "Auth", description = "사용자 인증 API")
 public class AuthController {
 
     private final AuthUseCase authUseCase;

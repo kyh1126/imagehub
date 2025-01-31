@@ -1,8 +1,8 @@
 package com.example.imagehub;
 
+import com.example.imagehub.infrastructure.config.AbstractSpringBootTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
@@ -11,8 +11,7 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class AuthIntegrationTest {
+class AuthIntegrationTest extends AbstractSpringBootTest {
 
     @Autowired
     private TestRestTemplate restTemplate;

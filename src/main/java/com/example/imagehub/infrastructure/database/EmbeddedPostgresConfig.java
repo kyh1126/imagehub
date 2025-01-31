@@ -1,20 +1,38 @@
 package com.example.imagehub.infrastructure.database;
 
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 
 @Configuration
-@ConditionalOnProperty(name = "spring.datasource.url", havingValue = "jdbc:postgresql://localhost:5432/postgres")
+@Profile("!test")
 public class EmbeddedPostgresConfig {
+
+    @Value("${embedded.postgres.port}")
+    private int port;
+
+    private EmbeddedPostgres embeddedPostgres;
 
     @Bean
     public DataSource embeddedPostgresDataSource() throws IOException {
-        EmbeddedPostgres embeddedPostgres = EmbeddedPostgres.builder().setPort(5432).start();
+        embeddedPostgres = EmbeddedPostgres.builder().setPort(port).start();
         return embeddedPostgres.getPostgresDatabase();
+    }
+
+    @PreDestroy
+    public void stopEmbeddedPostgres() {
+        if (embeddedPostgres != null) {
+            try {
+                embeddedPostgres.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
