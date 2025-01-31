@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,16 +15,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
     private final UserRepositoryPort userRepositoryPort;
-    private final PasswordEncoder passwordEncoder;
-
-    /**
-     * 새로운 사용자 저장 (회원가입)
-     */
-    public void saveUser(UserModel userModel) {
-        String hashedPassword = passwordEncoder.encode(userModel.getPassword());
-        userModel.setPassword(hashedPassword);
-        userRepositoryPort.save(userModel);
-    }
 
     /**
      * 사용자 정보를 로드하여 Spring Security 인증에 사용

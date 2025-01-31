@@ -55,7 +55,6 @@ class AuthIntegrationTest {
         assertEquals(HttpStatus.OK, status);
 
         String signInRequestBody = "{\"userId\": \"test2\", \"password\": \"password123\"}";
-
         HttpEntity<String> requestEntity = new HttpEntity<>(signInRequestBody, headers);
         ResponseEntity<String> response = restTemplate.postForEntity("/auth/login", requestEntity, String.class);
 

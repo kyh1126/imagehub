@@ -7,5 +7,6 @@ import org.springframework.security.core.Authentication;
  */
 public interface TokenProviderPort {
     String generateToken(Authentication authentication);
+
     String extractUsername(String token);
 }

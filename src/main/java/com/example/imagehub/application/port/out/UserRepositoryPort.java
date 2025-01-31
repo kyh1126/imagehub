@@ -9,5 +9,6 @@ import java.util.Optional;
  */
 public interface UserRepositoryPort {
     void save(UserModel userModel);
+
     Optional<UserModel> findByUserId(String userId);
 }
