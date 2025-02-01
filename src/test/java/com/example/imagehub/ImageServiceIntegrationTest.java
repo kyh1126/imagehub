@@ -97,6 +97,8 @@ class ImageServiceIntegrationTest extends AbstractSpringBootTest {
 
         ImageModel image = imageService.getImage(imageId);
         assertTrue(image.getFileName().contains("sample-image"));
+        assertNotNull(image.getFilePath());
+        assertNotNull(image.getThumbnailPath());
     }
 
     @Test

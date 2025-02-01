@@ -29,7 +29,20 @@ public class ImageJpaEntity {
     @Column(name = "category")
     private List<String> categories;
 
+    @Column(nullable = false) // 원본 이미지 경로 추가
+    private String filePath;
+
+    @Column(nullable = false) // 썸네일 이미지 경로 추가
+    private String thumbnailPath;
+
     public static ImageJpaEntity of(ImageModel model) {
-        return new ImageJpaEntity(model.getId(), model.getFileName(), model.getDescription(), model.getCategories());
+        return new ImageJpaEntity(
+                model.getId(),
+                model.getFileName(),
+                model.getDescription(),
+                model.getCategories(),
+                model.getFilePath(),
+                model.getThumbnailPath()
+        );
     }
 }

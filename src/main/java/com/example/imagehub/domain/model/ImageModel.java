@@ -15,8 +15,17 @@ public class ImageModel {
     private String fileName;
     private String description;
     private List<String> categories;
+    private String filePath;       // 원본 이미지 경로
+    private String thumbnailPath;  // 썸네일 이미지 경로
 
     public static ImageModel of(ImageJpaEntity entity) {
-        return new ImageModel(entity.getId(), entity.getFileName(), entity.getDescription(), entity.getCategories());
+        return new ImageModel(
+                entity.getId(),
+                entity.getFileName(),
+                entity.getDescription(),
+                entity.getCategories(),
+                entity.getFilePath(),
+                entity.getThumbnailPath()
+        );
     }
 }

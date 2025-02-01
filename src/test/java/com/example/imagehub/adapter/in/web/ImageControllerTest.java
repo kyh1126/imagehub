@@ -50,24 +50,34 @@ class ImageControllerTest {
 
     @Test
     void testGetImages() throws Exception {
-        List<ImageModel> images = List.of(new ImageModel(1L, "test.jpg", "Test Description", List.of("PERSON")));
+        List<ImageModel> images = List.of(new ImageModel(
+                1L, "test.jpg", "Test Description", List.of("PERSON"),
+                "uploads/test.jpg", "thumbnails/thumb_test.jpg"));
+
         when(imageUseCase.getImages()).thenReturn(images);
 
         mockMvc.perform(get("/images")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].fileName").value("test.jpg"));
+                .andExpect(jsonPath("$[0].fileName").value("test.jpg"))
+                .andExpect(jsonPath("$[0].filePath").value("uploads/test.jpg"))
+                .andExpect(jsonPath("$[0].thumbnailPath").value("thumbnails/thumb_test.jpg"));
     }
 
     @Test
     void testGetImageById() throws Exception {
-        ImageModel image = new ImageModel(1L, "test.jpg", "Test Description", List.of("PERSON"));
+        ImageModel image = new ImageModel(
+                1L, "test.jpg", "Test Description", List.of("PERSON"),
+                "uploads/test.jpg", "thumbnails/thumb_test.jpg");
+
         when(imageUseCase.getImage(1L)).thenReturn(image);
 
         mockMvc.perform(get("/images/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.fileName").value("test.jpg"));
+                .andExpect(jsonPath("$.fileName").value("test.jpg"))
+                .andExpect(jsonPath("$.filePath").value("uploads/test.jpg"))
+                .andExpect(jsonPath("$.thumbnailPath").value("thumbnails/thumb_test.jpg"));
     }
 
     @Test
