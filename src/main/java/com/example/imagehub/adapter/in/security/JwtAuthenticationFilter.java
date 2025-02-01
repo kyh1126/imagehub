@@ -29,6 +29,9 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final String DECODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to decode the Jwt: %s";
+
     private final JwtDecoder jwtDecoder;
 
     @Override
@@ -39,6 +42,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 Jwt jwt = jwtDecoder.decode(token);
+                if (jwt == null) {
+                    log.error("JWT decoding returned null. This should not happen!");
+                    throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, "null"), new NullPointerException());
+                }
+
                 String userId = jwt.getSubject();
                 List<GrantedAuthority> authorities = extractAuthorities(jwt);
 
@@ -48,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JwtException e) {
-                log.warn("JWT verification failed: {}", e.getMessage());
+                log.error("JWT verification failed: {}", e.getMessage());
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Token");
                 return;
             }

@@ -45,7 +45,6 @@ class AuthServiceTest {
         String userId = "test1";
         String rawPassword = "password123";
         String encodedPassword = passwordEncoder.encode(rawPassword);
-        UserModel userModel = new UserModel(userId, "testUser", encodedPassword, "USER");
 
         Authentication authentication = mock(Authentication.class);
         when(authentication.isAuthenticated()).thenReturn(true);
