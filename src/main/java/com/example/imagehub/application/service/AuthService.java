@@ -2,7 +2,7 @@ package com.example.imagehub.application.service;
 
 import com.example.imagehub.application.port.in.AuthUseCase;
 import com.example.imagehub.application.port.out.TokenProviderPort;
-import com.example.imagehub.application.port.out.UserRepositoryPort;
+import com.example.imagehub.application.port.out.UserPort;
 import com.example.imagehub.domain.model.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthService implements AuthUseCase {
-    private final UserRepositoryPort userRepository;
+    private final UserPort userPort;
     private final TokenProviderPort tokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -21,7 +21,7 @@ public class AuthService implements AuthUseCase {
     @Override
     public String signUp(UserModel userModel) {
         userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
-        userRepository.save(userModel);
+        userPort.create(userModel);
         return "User registered successfully";
     }
 

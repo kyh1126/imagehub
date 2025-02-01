@@ -7,8 +7,8 @@ import java.util.Optional;
 /**
  * 사용자 저장소를 위한 Port 인터페이스
  */
-public interface UserRepositoryPort {
-    void save(UserModel userModel);
+public interface UserPort {
+    void create(UserModel userModel);
 
     Optional<UserModel> findByUserId(String userId);
 }

@@ -1,6 +1,6 @@
 package com.example.imagehub.adapter.out.persistence;
 
-import com.example.imagehub.application.port.out.CategoryRepositoryPort;
+import com.example.imagehub.application.port.out.CategoryPort;
 import com.example.imagehub.domain.model.CategoryModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,12 +10,13 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CategoryRepositoryAdapter implements CategoryRepositoryPort {
+public class CategoryRepositoryAdapter implements CategoryPort {
     private final SpringDataCategoryRepository categoryRepository;
 
     @Override
-    public void save(CategoryModel category) {
-        categoryRepository.save(CategoryJpaEntity.of(category));
+    public void create(CategoryModel category) {
+        CategoryJpaEntity categoryJpaEntity = CategoryJpaEntity.create(category);
+        categoryRepository.save(categoryJpaEntity);
     }
 
     @Override

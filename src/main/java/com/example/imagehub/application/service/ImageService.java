@@ -1,7 +1,7 @@
 package com.example.imagehub.application.service;
 
 import com.example.imagehub.application.port.in.ImageUseCase;
-import com.example.imagehub.application.port.out.ImageRepositoryPort;
+import com.example.imagehub.application.port.out.ImagePort;
 import com.example.imagehub.domain.model.ImageModel;
 import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,7 +20,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ImageService implements ImageUseCase {
 
-    private final ImageRepositoryPort imageRepository;
+    private final ImagePort imageRepository;
     private final Set<String> validCategories = Set.of("PERSON", "LANDSCAPE", "ANIMAL", "FOOD", "OTHERS");
 
     @Value("${app.upload.dir}")
@@ -44,7 +43,7 @@ public class ImageService implements ImageUseCase {
                 Path.of(uploadDir, fileName).toString(),  // 원본 이미지 경로
                 thumbnailPath  // 썸네일 경로
         );
-        imageRepository.save(image);
+        imageRepository.create(image);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class ImageService implements ImageUseCase {
         validateCategories(categories);
         ImageModel image = getImage(id);
         image.getCategories().addAll(categories);
-        imageRepository.save(image);
+        imageRepository.update(image);
     }
 
     @Override
@@ -84,7 +83,7 @@ public class ImageService implements ImageUseCase {
         validateCategories(categories);
         ImageModel image = getImage(id);
         image.getCategories().removeAll(categories);
-        imageRepository.save(image);
+        imageRepository.update(image);
     }
 
     private void validateCategories(List<String> categories) {
@@ -127,14 +126,7 @@ public class ImageService implements ImageUseCase {
             Path inputPath = Path.of(uploadDir, fileName);
             Path outputPath = Path.of(thumbnailDir, thumbnailName);
 
-//            // InputStream이 여러 번 사용될 수 있도록 새로 열기
-//            try (InputStream inputStream = Files.newInputStream(inputPath)) {
-//                Thumbnails.of(inputStream)
-//                        .size(100, 100)
-//                        .toFile(outputPath.toFile());
-//            }
-            BufferedImage img = ImageIO.read(inputPath.toFile());
-            Thumbnails.of(img)
+            Thumbnails.of(ImageIO.read(inputPath.toFile()))
                     .size(100, 100)
                     .toFile(outputPath.toFile());
 

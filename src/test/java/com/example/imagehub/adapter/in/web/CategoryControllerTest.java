@@ -43,12 +43,12 @@ class CategoryControllerTest {
 
     @Test
     void testAddCategory() {
-        doNothing().when(categoryUseCase).addCategory("FOOD");
+        doNothing().when(categoryUseCase).addCategory("FOOD2");
 
-        Map<String, String> response = categoryController.addCategory("FOOD");
+        Map<String, String> response = categoryController.addCategory("FOOD2");
 
         assertEquals("Category added successfully", response.get("message"));
-        verify(categoryUseCase, times(1)).addCategory("FOOD");
+        verify(categoryUseCase, times(1)).addCategory("FOOD2");
     }
 
     @Test

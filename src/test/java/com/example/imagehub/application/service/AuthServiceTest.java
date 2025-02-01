@@ -1,7 +1,7 @@
 package com.example.imagehub.application.service;
 
 import com.example.imagehub.application.port.out.TokenProviderPort;
-import com.example.imagehub.application.port.out.UserRepositoryPort;
+import com.example.imagehub.application.port.out.UserPort;
 import com.example.imagehub.domain.model.UserModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,18 +17,18 @@ import static org.mockito.Mockito.*;
 class AuthServiceTest {
 
     private AuthService authService;
-    private UserRepositoryPort userRepositoryPort;
+    private UserPort userPort;
     private TokenProviderPort tokenProviderPort;
     private BCryptPasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
 
     @BeforeEach
     void setUp() {
-        userRepositoryPort = mock(UserRepositoryPort.class);
+        userPort = mock(UserPort.class);
         tokenProviderPort = mock(TokenProviderPort.class);
         passwordEncoder = new BCryptPasswordEncoder();
         authenticationManager = mock(AuthenticationManager.class);
-        authService = new AuthService(userRepositoryPort, tokenProviderPort, passwordEncoder, authenticationManager);
+        authService = new AuthService(userPort, tokenProviderPort, passwordEncoder, authenticationManager);
     }
 
     @Test
@@ -37,7 +37,7 @@ class AuthServiceTest {
 
         authService.signUp(userModel);
 
-        verify(userRepositoryPort).save(any(UserModel.class));
+        verify(userPort).create(any(UserModel.class));
     }
 
     @Test

@@ -1,6 +1,6 @@
 package com.example.imagehub.application.service;
 
-import com.example.imagehub.application.port.out.UserRepositoryPort;
+import com.example.imagehub.application.port.out.UserPort;
 import com.example.imagehub.domain.model.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,20 +14,20 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    private final UserRepositoryPort userRepositoryPort;
+    private final UserPort userPort;
 
     /**
      * 사용자 정보를 로드하여 Spring Security 인증에 사용
      */
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        UserModel userModel = userRepositoryPort.findByUserId(userId)
+        UserModel userModel = userPort.findByUserId(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(userModel.getUserId())
                 .password(userModel.getPassword())
-                .roles(userModel.getRole()) // ROLE_USER, ROLE_ADMIN 등의 역할을 부여
+                .roles(userModel.getRole()) // USER, ADMIN -> ROLE_USER, ROLE_ADMIN
                 .build();
     }
 }

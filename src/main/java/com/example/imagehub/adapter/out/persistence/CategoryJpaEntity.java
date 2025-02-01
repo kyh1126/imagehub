@@ -19,7 +19,11 @@ public class CategoryJpaEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
-    public static CategoryJpaEntity of(CategoryModel model) {
-        return new CategoryJpaEntity(model.getId(), model.getName());
+    public static CategoryJpaEntity create(CategoryModel model) {
+        CategoryJpaEntity categoryJpaEntity = new CategoryJpaEntity();
+
+        categoryJpaEntity.name = model.getName();
+
+        return categoryJpaEntity;
     }
 }

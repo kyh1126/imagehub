@@ -35,14 +35,23 @@ public class ImageJpaEntity {
     @Column(nullable = false) // 썸네일 이미지 경로 추가
     private String thumbnailPath;
 
-    public static ImageJpaEntity of(ImageModel model) {
-        return new ImageJpaEntity(
-                model.getId(),
-                model.getFileName(),
-                model.getDescription(),
-                model.getCategories(),
-                model.getFilePath(),
-                model.getThumbnailPath()
-        );
+    public static ImageJpaEntity create(ImageModel model) {
+        ImageJpaEntity imageJpaEntity = new ImageJpaEntity();
+
+        imageJpaEntity.fileName = model.getFileName();
+        imageJpaEntity.description = model.getDescription();
+        imageJpaEntity.categories = model.getCategories();
+        imageJpaEntity.filePath = model.getFilePath();
+        imageJpaEntity.thumbnailPath = model.getThumbnailPath();
+
+        return imageJpaEntity;
+    }
+
+    public void update(ImageModel model) {
+        this.fileName = model.getFileName();
+        this.description = model.getDescription();
+        this.categories = model.getCategories();
+        this.filePath = model.getFilePath();
+        this.thumbnailPath = model.getThumbnailPath();
     }
 }

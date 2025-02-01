@@ -5,8 +5,10 @@ import com.example.imagehub.domain.model.ImageModel;
 import java.util.List;
 import java.util.Optional;
 
-public interface ImageRepositoryPort {
-    void save(ImageModel image);
+public interface ImagePort {
+    void create(ImageModel image);
+
+    void update(ImageModel image);
 
     List<ImageModel> findAll();
 

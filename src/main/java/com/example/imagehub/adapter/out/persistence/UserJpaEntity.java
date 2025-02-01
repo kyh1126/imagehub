@@ -17,12 +17,20 @@ public class UserJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String userId;
     private String password;
     private String name;
     private String role;
 
-    public static UserJpaEntity of(UserModel userModel) {
-        return new UserJpaEntity(null, userModel.getUserId(), userModel.getPassword(), userModel.getUsername(), userModel.getRole());
+    public static UserJpaEntity create(UserModel userModel) {
+        UserJpaEntity userJpaEntity = new UserJpaEntity();
+
+        userJpaEntity.userId = userModel.getUserId();
+        userJpaEntity.password = userModel.getPassword();
+        userJpaEntity.name = userModel.getUsername();
+        userJpaEntity.role = userModel.getRole();
+
+        return userJpaEntity;
     }
 }

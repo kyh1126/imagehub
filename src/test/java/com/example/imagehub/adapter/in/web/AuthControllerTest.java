@@ -122,7 +122,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/categories")
                         .header("Authorization", validJwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("name", "LANDSCAPE"))
+                        .param("name", "LANDSCAPE2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Category added successfully"));
     }
@@ -140,7 +140,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/categories")
                         .header("Authorization", validJwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("name", "LANDSCAPE"))
+                        .param("name", "LANDSCAPE2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Category added successfully"));
     }

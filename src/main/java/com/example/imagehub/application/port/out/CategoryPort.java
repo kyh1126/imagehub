@@ -5,8 +5,8 @@ import com.example.imagehub.domain.model.CategoryModel;
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoryRepositoryPort {
-    void save(CategoryModel category);
+public interface CategoryPort {
+    void create(CategoryModel category);
 
     List<CategoryModel> findAll();
 

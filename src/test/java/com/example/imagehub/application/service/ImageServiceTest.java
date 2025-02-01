@@ -1,6 +1,6 @@
 package com.example.imagehub.application.service;
 
-import com.example.imagehub.application.port.out.ImageRepositoryPort;
+import com.example.imagehub.application.port.out.ImagePort;
 import com.example.imagehub.domain.model.ImageModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class ImageServiceTest {
     @InjectMocks
     private ImageService imageService;
     @Mock
-    private ImageRepositoryPort imageRepository;
+    private ImagePort imagePort;
 
     @BeforeEach
     void setUp() {
@@ -44,11 +44,11 @@ class ImageServiceTest {
         Files.createDirectories(sampleImagePath.getParent());
         Files.copy(getClass().getResourceAsStream("/sample-image.jpg"), sampleImagePath, StandardCopyOption.REPLACE_EXISTING);
         MockMultipartFile file = new MockMultipartFile("file", "sample-image.jpg", "image/jpeg", Files.readAllBytes(sampleImagePath));
-        doNothing().when(imageRepository).save(any(ImageModel.class));
+        doNothing().when(imagePort).create(any(ImageModel.class));
 
         imageService.uploadImage(file, "Test Description", List.of("PERSON"));
 
-        verify(imageRepository, times(1)).save(any(ImageModel.class));
+        verify(imagePort, times(1)).create(any(ImageModel.class));
 
         // 썸네일 디렉토리에서 "thumb_"로 시작하고 "sample-image.jpg"로 끝나는 파일 찾기
         Path thumbnailDir = Path.of("src/test/thumbnails");
@@ -65,7 +65,7 @@ class ImageServiceTest {
                         "uploads/test.jpg", "thumbnails/thumb_test.jpg")
         );
 
-        when(imageRepository.findAll()).thenReturn(images);
+        when(imagePort.findAll()).thenReturn(images);
 
         List<ImageModel> result = imageService.getImages();
 
@@ -73,7 +73,7 @@ class ImageServiceTest {
         assertEquals("test.jpg", result.get(0).getFileName());
         assertEquals("uploads/test.jpg", result.get(0).getFilePath());
         assertEquals("thumbnails/thumb_test.jpg", result.get(0).getThumbnailPath());
-        verify(imageRepository, times(1)).findAll();
+        verify(imagePort, times(1)).findAll();
     }
 
     @Test
@@ -81,7 +81,7 @@ class ImageServiceTest {
         ImageModel image = new ImageModel(1L, "test.jpg", "Test Description", List.of("PERSON"),
                 "uploads/test.jpg", "thumbnails/thumb_test.jpg");
 
-        when(imageRepository.findById(1L)).thenReturn(Optional.of(image));
+        when(imagePort.findById(1L)).thenReturn(Optional.of(image));
 
         ImageModel result = imageService.getImage(1L);
 
@@ -89,7 +89,7 @@ class ImageServiceTest {
         assertEquals("test.jpg", result.getFileName());
         assertEquals("uploads/test.jpg", result.getFilePath());
         assertEquals("thumbnails/thumb_test.jpg", result.getThumbnailPath());
-        verify(imageRepository, times(1)).findById(1L);
+        verify(imagePort, times(1)).findById(1L);
     }
 
     @Test
@@ -97,11 +97,11 @@ class ImageServiceTest {
         ImageModel image = new ImageModel(1L, "test.jpg", "Test Description", List.of("PERSON"),
                 "uploads/test.jpg", "thumbnails/thumb_test.jpg");
 
-        when(imageRepository.findById(1L)).thenReturn(Optional.of(image));
-        doNothing().when(imageRepository).deleteById(1L);
+        when(imagePort.findById(1L)).thenReturn(Optional.of(image));
+        doNothing().when(imagePort).deleteById(1L);
 
         imageService.deleteImage(1L);
 
-        verify(imageRepository, times(1)).deleteById(1L);
+        verify(imagePort, times(1)).deleteById(1L);
     }
 }

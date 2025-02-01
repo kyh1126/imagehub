@@ -1,6 +1,6 @@
 package com.example.imagehub.application.service;
 
-import com.example.imagehub.application.port.out.CategoryRepositoryPort;
+import com.example.imagehub.application.port.out.CategoryPort;
 import com.example.imagehub.domain.model.CategoryModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ class CategoryServiceTest {
     private CategoryService categoryService;
 
     @Mock
-    private CategoryRepositoryPort categoryRepository;
+    private CategoryPort CategoryPort;
 
     @BeforeEach
     void setUp() {
@@ -29,30 +29,30 @@ class CategoryServiceTest {
     @Test
     void testAddCategory() {
         CategoryModel category = new CategoryModel(null, "TEST");
-        doNothing().when(categoryRepository).save(category);
+        doNothing().when(CategoryPort).create(category);
 
         categoryService.addCategory("TEST");
 
-        verify(categoryRepository, times(1)).save(any(CategoryModel.class));
+        verify(CategoryPort, times(1)).create(any(CategoryModel.class));
     }
 
     @Test
     void testGetCategories() {
         List<CategoryModel> categories = List.of(new CategoryModel(1L, "PERSON"), new CategoryModel(2L, "ANIMAL"));
-        when(categoryRepository.findAll()).thenReturn(categories);
+        when(CategoryPort.findAll()).thenReturn(categories);
 
         List<CategoryModel> result = categoryService.getCategories();
 
         assertEquals(2, result.size());
-        verify(categoryRepository, times(1)).findAll();
+        verify(CategoryPort, times(1)).findAll();
     }
 
     @Test
     void testDeleteCategory() {
-        doNothing().when(categoryRepository).deleteById(1L);
+        doNothing().when(CategoryPort).deleteById(1L);
 
         categoryService.deleteCategory(1L);
 
-        verify(categoryRepository, times(1)).deleteById(1L);
+        verify(CategoryPort, times(1)).deleteById(1L);
     }
 }
