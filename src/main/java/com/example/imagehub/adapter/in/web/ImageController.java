@@ -2,6 +2,7 @@ package com.example.imagehub.adapter.in.web;
 
 import com.example.imagehub.application.port.in.ImageUseCase;
 import com.example.imagehub.domain.model.ImageModel;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("images")
+@SecurityRequirement(name = "Bearer Authentication")
 @Tag(name = "Image", description = "이미지 관리 API")
 public class ImageController {
 

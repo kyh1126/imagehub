@@ -81,8 +81,8 @@ class AuthControllerTest {
         Instant now = Instant.now();
         Jwt mockJwt = new Jwt(
                 validJwtToken, now, now.plusSeconds(3600),
-                Map.of("alg", "HS256"), // Header
-                Map.of("sub", "test1", "roles", List.of("USER")) // Claims
+                Map.of("kid", "imagehub-key", "alg", "HS256"), // Header
+                Map.of("sub", "test1", "roles", "ROLE_USER") // Claims
         );
         when(jwtDecoder.decode("valid.jwt.token")).thenReturn(mockJwt);
 
@@ -98,8 +98,8 @@ class AuthControllerTest {
         Instant now = Instant.now();
         Jwt mockJwt = new Jwt(
                 validJwtToken, now, now.plusSeconds(3600),
-                Map.of("alg", "HS256"), // Header
-                Map.of("sub", "test1", "roles", List.of("USER")) // Claims
+                Map.of("kid", "imagehub-key", "alg", "HS256"), // Header
+                Map.of("sub", "test1", "roles", "ROLE_USER") // Claims
         );
         when(jwtDecoder.decode("valid.jwt.token")).thenReturn(mockJwt);
 
@@ -114,8 +114,12 @@ class AuthControllerTest {
         Instant now = Instant.now();
         Jwt mockJwt = new Jwt(
                 validJwtToken, now, now.plusSeconds(3600),
-                Map.of("alg", "HS256"), // Header
-                Map.of("sub", "test1", "roles", List.of("ADMIN")) // Claims
+                Map.of("kid", "imagehub-key", "alg", "HS256"), // Header
+                Map.of("sub", "test1", "roles", "ROLE_ADMIN") // Claims
+                // TODO:
+                //  1. 테스트 코드 상 Claims 에 반영 필요
+                //    - "exp" -> {Instant@17767} "2025-02-01T19:46:43Z", "iat" -> {Instant@17766} "2025-02-01T18:46:43Z"
+                //  2. 만료 테스트 코드 추가
         );
         when(jwtDecoder.decode("valid.jwt.token")).thenReturn(mockJwt);
 
@@ -132,8 +136,8 @@ class AuthControllerTest {
         Instant now = Instant.now();
         Jwt mockJwt = new Jwt(
                 validJwtToken, now, now.plusSeconds(3600),
-                Map.of("alg", "HS256"), // Header
-                Map.of("sub", "test1", "roles", List.of("USER")) // Claims
+                Map.of("kid", "imagehub-key", "alg", "HS256"), // Header
+                Map.of("sub", "test1", "roles", "ROLE_USER") // Claims
         );
         when(jwtDecoder.decode("valid.jwt.token")).thenReturn(mockJwt);
 
