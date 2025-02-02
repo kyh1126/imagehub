@@ -2,6 +2,7 @@ package com.example.imagehub.application.service;
 
 import com.example.imagehub.application.port.in.CategoryUseCase;
 import com.example.imagehub.application.port.out.CategoryPort;
+import com.example.imagehub.application.port.out.LoadCategoryPort;
 import com.example.imagehub.common.UseCase;
 import com.example.imagehub.domain.Category;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,10 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CategoryService implements CategoryUseCase {
 
+    private final LoadCategoryPort loadCategoryPort;
     private final CategoryPort categoryPort;
 
+    @Transactional
     @Override
     public void addCategory(String name) {
         categoryPort.add(Category.of(name));
@@ -23,11 +26,12 @@ public class CategoryService implements CategoryUseCase {
 
     @Override
     public List<Category> getCategories() {
-        return categoryPort.findAll();
+        return loadCategoryPort.findAll();
     }
 
+    @Transactional
     @Override
     public void deleteCategory(Long id) {
-        categoryPort.deleteById(id);
+        categoryPort.delete(id);
     }
 }

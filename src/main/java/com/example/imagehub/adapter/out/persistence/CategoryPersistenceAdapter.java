@@ -1,6 +1,7 @@
 package com.example.imagehub.adapter.out.persistence;
 
 import com.example.imagehub.application.port.out.CategoryPort;
+import com.example.imagehub.application.port.out.LoadCategoryPort;
 import com.example.imagehub.domain.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class CategoryRepositoryAdapter implements CategoryPort {
+public class CategoryPersistenceAdapter implements LoadCategoryPort, CategoryPort {
     private final SpringDataCategoryRepository categoryRepository;
 
     @Override
@@ -30,7 +31,7 @@ public class CategoryRepositoryAdapter implements CategoryPort {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void delete(Long id) {
         categoryRepository.deleteById(id);
     }
 }

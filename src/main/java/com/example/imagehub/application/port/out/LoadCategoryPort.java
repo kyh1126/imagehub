@@ -5,14 +5,10 @@ import com.example.imagehub.domain.Category;
 import java.util.List;
 import java.util.Optional;
 
-public interface CategoryPort {
-
-    void add(Category category);
+public interface LoadCategoryPort {
 
     List<Category> findAll();
 
     Optional<Category> findById(Long id);
-
-    void delete(Long id);
 
 }
