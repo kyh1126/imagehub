@@ -34,8 +34,7 @@ public class ImageController {
     @Operation(summary = "이미지 업로드")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, String> uploadImage(@RequestPart("file") MultipartFile file,
-                                           @RequestPart("request") String requestJson) throws JsonProcessingException {
-        UploadImageRequest request = new ObjectMapper().readValue(requestJson, UploadImageRequest.class);
+                                           @RequestPart("request") UploadImageRequest request) {
         UploadImageCommand uploadImageCommand = new UploadImageCommand(file, request.getDescription(), request.getCategories());
         imageUseCase.uploadImage(uploadImageCommand);
         return Map.of("message", "Image uploaded successfully");
