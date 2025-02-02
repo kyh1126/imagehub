@@ -35,8 +35,11 @@ public class ImageController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, String> uploadImage(@RequestPart("file") MultipartFile file,
                                            @RequestPart("request") UploadImageRequest request) {
-        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, request.getDescription(), request.getCategories());
+        UploadImageCommand uploadImageCommand =
+                new UploadImageCommand(file, request.getDescription(), request.getCategories());
+
         imageUseCase.uploadImage(uploadImageCommand);
+
         return Map.of("message", "Image uploaded successfully");
     }
 
