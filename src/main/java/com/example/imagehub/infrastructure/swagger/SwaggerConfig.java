@@ -47,9 +47,9 @@ public class SwaggerConfig {
                 .scheme("bearer")
                 .bearerFormat("JWT")
                 .description("""
-                ex> -H 'Authorization: Bearer eyJraWQiOiJpbWFnZWh1Yi1rZXkiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJreWgxMTI...'
-                \n-> Value: eyJraWQiOiJpbWFnZWh1Yi1rZXkiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJreWgxMTI...
-                """)
+                        ex> -H 'Authorization: Bearer eyJraWQiOiJpbWFnZWh1Yi1rZXkiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJreWgxMTI...'
+                        \n-> Value: eyJraWQiOiJpbWFnZWh1Yi1rZXkiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJreWgxMTI...
+                        """)
                 .type(SecurityScheme.Type.HTTP)
                 .in(SecurityScheme.In.HEADER);
     }

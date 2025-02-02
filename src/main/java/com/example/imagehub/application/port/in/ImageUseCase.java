@@ -1,16 +1,17 @@
 package com.example.imagehub.application.port.in;
 
-import com.example.imagehub.domain.model.ImageModel;
-import org.springframework.web.multipart.MultipartFile;
+import com.example.imagehub.application.port.out.ImageResponse;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ImageUseCase {
-    void uploadImage(MultipartFile file, String description, List<String> categories);
 
-    List<ImageModel> getImages();
+    void uploadImage(UploadImageCommand uploadImageCommand);
 
-    ImageModel getImage(Long id);
+    List<ImageResponse> getImages(Pageable pageable);
+
+    ImageResponse getImage(Long id);
 
     List<String> getImageCategories(Long id);
 
@@ -19,4 +20,5 @@ public interface ImageUseCase {
     void addCategoriesToImage(Long id, List<String> categories);
 
     void removeCategoriesFromImage(Long id, List<String> categories);
+
 }

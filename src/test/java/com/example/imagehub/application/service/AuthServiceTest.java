@@ -1,8 +1,10 @@
 package com.example.imagehub.application.service;
 
+import com.example.imagehub.application.port.in.SignInCommand;
+import com.example.imagehub.application.port.in.SignUpCommand;
+import com.example.imagehub.application.port.out.CreateUserPort;
 import com.example.imagehub.application.port.out.TokenProviderPort;
-import com.example.imagehub.application.port.out.UserPort;
-import com.example.imagehub.domain.model.UserModel;
+import com.example.imagehub.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,34 +19,31 @@ import static org.mockito.Mockito.*;
 class AuthServiceTest {
 
     private AuthService authService;
-    private UserPort userPort;
+    private CreateUserPort createUserPort;
     private TokenProviderPort tokenProviderPort;
     private BCryptPasswordEncoder passwordEncoder;
     private AuthenticationManager authenticationManager;
 
     @BeforeEach
     void setUp() {
-        userPort = mock(UserPort.class);
+        createUserPort = mock(CreateUserPort.class);
         tokenProviderPort = mock(TokenProviderPort.class);
         passwordEncoder = new BCryptPasswordEncoder();
         authenticationManager = mock(AuthenticationManager.class);
-        authService = new AuthService(userPort, tokenProviderPort, passwordEncoder, authenticationManager);
+        authService = new AuthService(createUserPort, tokenProviderPort, passwordEncoder, authenticationManager);
     }
 
     @Test
     void signUpShouldSaveUser() {
-        UserModel userModel = new UserModel("test1", "testUser", "password123", "USER");
+        SignUpCommand signUpCommand = new SignUpCommand("test1", "testUser", "password123", "USER");
 
-        authService.signUp(userModel);
+        authService.signUp(signUpCommand);
 
-        verify(userPort).create(any(UserModel.class));
+        verify(createUserPort).create(any(User.class));
     }
 
     @Test
     void loginShouldReturnTokenWhenCredentialsAreValid() {
-        String userId = "test1";
-        String rawPassword = "password123";
-        String encodedPassword = passwordEncoder.encode(rawPassword);
 
         Authentication authentication = mock(Authentication.class);
         when(authentication.isAuthenticated()).thenReturn(true);
@@ -52,7 +51,9 @@ class AuthServiceTest {
                 .thenReturn(authentication);
         when(tokenProviderPort.generateToken(authentication)).thenReturn("mockedToken");
 
-        String token = authService.login(userId, rawPassword);
+        SignInCommand signInCommand = new SignInCommand("test1", "password123");
+
+        String token = authService.login(signInCommand);
 
         assertEquals("mockedToken", token);
     }
@@ -62,6 +63,8 @@ class AuthServiceTest {
         Authentication authentication = mock(Authentication.class);
         when(authentication.isAuthenticated()).thenReturn(false);
 
-        assertThrows(RuntimeException.class, () -> authService.login("test1", "wrongPassword"));
+        SignInCommand signInCommand = new SignInCommand("test1", "wrongPassword");
+
+        assertThrows(RuntimeException.class, () -> authService.login(signInCommand));
     }
 }

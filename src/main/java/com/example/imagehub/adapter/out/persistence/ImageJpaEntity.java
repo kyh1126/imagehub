@@ -1,6 +1,6 @@
 package com.example.imagehub.adapter.out.persistence;
 
-import com.example.imagehub.domain.model.ImageModel;
+import com.example.imagehub.domain.Image;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "images")
-public class ImageJpaEntity {
+public class ImageJpaEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +35,7 @@ public class ImageJpaEntity {
     @Column(nullable = false) // 썸네일 이미지 경로 추가
     private String thumbnailPath;
 
-    public static ImageJpaEntity create(ImageModel model) {
+    public static ImageJpaEntity create(Image model) {
         ImageJpaEntity imageJpaEntity = new ImageJpaEntity();
 
         imageJpaEntity.fileName = model.getFileName();
@@ -47,7 +47,7 @@ public class ImageJpaEntity {
         return imageJpaEntity;
     }
 
-    public void update(ImageModel model) {
+    public void update(Image model) {
         this.fileName = model.getFileName();
         this.description = model.getDescription();
         this.categories = model.getCategories();

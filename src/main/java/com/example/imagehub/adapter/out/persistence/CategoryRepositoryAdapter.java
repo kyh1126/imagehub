@@ -1,7 +1,7 @@
 package com.example.imagehub.adapter.out.persistence;
 
 import com.example.imagehub.application.port.out.CategoryPort;
-import com.example.imagehub.domain.model.CategoryModel;
+import com.example.imagehub.domain.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,19 +14,19 @@ public class CategoryRepositoryAdapter implements CategoryPort {
     private final SpringDataCategoryRepository categoryRepository;
 
     @Override
-    public void create(CategoryModel category) {
+    public void add(Category category) {
         CategoryJpaEntity categoryJpaEntity = CategoryJpaEntity.create(category);
         categoryRepository.save(categoryJpaEntity);
     }
 
     @Override
-    public List<CategoryModel> findAll() {
-        return categoryRepository.findAll().stream().map(CategoryModel::of).toList();
+    public List<Category> findAll() {
+        return categoryRepository.findAll().stream().map(Category::mapToDomainEntity).toList();
     }
 
     @Override
-    public Optional<CategoryModel> findById(Long id) {
-        return categoryRepository.findById(id).map(CategoryModel::of);
+    public Optional<Category> findById(Long id) {
+        return categoryRepository.findById(id).map(Category::mapToDomainEntity);
     }
 
     @Override

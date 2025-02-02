@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface SpringDataImageRepository extends JpaRepository<ImageJpaEntity, Long> {
+
     @Query("SELECT c FROM ImageJpaEntity i JOIN i.categories c WHERE i.id = :id")
     List<String> findCategoriesById(@Param("id") Long id);
+
 }

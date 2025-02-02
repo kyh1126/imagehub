@@ -3,3 +3,5 @@ Spring Boot 3 이상에서는 spring-boot-starter-web에 자동 포함되지 않
 implementation 'org.springframework.boot:spring-boot-starter-validation'
 ```
 # imagehub
+
+![ERD.png](ERD.png)

@@ -1,6 +1,6 @@
 package com.example.imagehub.adapter.out.persistence;
 
-import com.example.imagehub.domain.model.UserModel;
+import com.example.imagehub.domain.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-public class UserJpaEntity {
+public class UserJpaEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,13 +23,13 @@ public class UserJpaEntity {
     private String name;
     private String role;
 
-    public static UserJpaEntity create(UserModel userModel) {
+    public static UserJpaEntity create(User user) {
         UserJpaEntity userJpaEntity = new UserJpaEntity();
 
-        userJpaEntity.userId = userModel.getUserId();
-        userJpaEntity.password = userModel.getPassword();
-        userJpaEntity.name = userModel.getUsername();
-        userJpaEntity.role = userModel.getRole();
+        userJpaEntity.userId = user.getUserId();
+        userJpaEntity.password = user.getPassword();
+        userJpaEntity.name = user.getUsername();
+        userJpaEntity.role = user.getRole();
 
         return userJpaEntity;
     }

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class TokenProviderAdapter implements TokenProviderPort {
+
     private final JwtEncoder jwtEncoder; // JWT 생성기
     private final JwtDecoder jwtDecoder; // JWT 디코더
 

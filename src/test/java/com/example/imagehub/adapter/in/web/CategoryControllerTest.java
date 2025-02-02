@@ -1,7 +1,8 @@
 package com.example.imagehub.adapter.in.web;
 
+import com.example.imagehub.adapter.in.CategoryController;
 import com.example.imagehub.application.port.in.CategoryUseCase;
-import com.example.imagehub.domain.model.CategoryModel;
+import com.example.imagehub.domain.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -29,13 +30,13 @@ class CategoryControllerTest {
 
     @Test
     void testGetCategories() {
-        List<CategoryModel> categories = List.of(
-                new CategoryModel(1L, "PERSON"),
-                new CategoryModel(2L, "ANIMAL")
+        List<Category> categories = List.of(
+                Category.of("PERSON"),
+                Category.of("ANIMAL")
         );
         when(categoryUseCase.getCategories()).thenReturn(categories);
 
-        List<CategoryModel> response = categoryController.getCategories();
+        List<Category> response = categoryController.getCategories();
 
         assertEquals(2, response.size());
         verify(categoryUseCase, times(1)).getCategories();

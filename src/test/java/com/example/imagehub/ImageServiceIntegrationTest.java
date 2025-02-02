@@ -1,12 +1,16 @@
 package com.example.imagehub;
 
+import com.example.imagehub.application.port.in.UploadImageCommand;
+import com.example.imagehub.application.port.out.ImageResponse;
 import com.example.imagehub.application.service.ImageService;
-import com.example.imagehub.domain.model.ImageModel;
 import com.example.imagehub.infrastructure.config.AbstractSpringBootTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,9 @@ class ImageServiceIntegrationTest extends AbstractSpringBootTest {
 
     @Autowired
     private ImageService imageService;
+
+    @Mock
+    private Pageable pageRequest;
 
     private Path tempDir;
 
@@ -52,9 +59,10 @@ class ImageServiceIntegrationTest extends AbstractSpringBootTest {
         Files.copy(getClass().getResourceAsStream("/sample-image.jpg"), sampleImagePath);
 
         MockMultipartFile file = new MockMultipartFile("file", "sample-image.jpg", "image/jpeg", Files.readAllBytes(sampleImagePath));
-        imageService.uploadImage(file, "Test Description", List.of("PERSON"));
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Test Description", List.of("PERSON"));
+        imageService.uploadImage(uploadImageCommand);
 
-        List<ImageModel> images = imageService.getImages();
+        var images = imageService.getImages(PageRequest.ofSize(10));
         assertTrue(images.stream().anyMatch(img -> img.getFileName().contains("sample-image")));
     }
 
@@ -65,17 +73,18 @@ class ImageServiceIntegrationTest extends AbstractSpringBootTest {
         Files.copy(getClass().getResourceAsStream("/sample-image.jpg"), sampleImagePath);
 
         MockMultipartFile file = new MockMultipartFile("file", "sample-image.jpg", "image/jpeg", Files.readAllBytes(sampleImagePath));
-        imageService.uploadImage(file, "Delete Description", List.of("ANIMAL"));
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Delete Description", List.of("ANIMAL"));
+        imageService.uploadImage(uploadImageCommand);
 
-        List<ImageModel> imagesBefore = imageService.getImages();
+        var imagesBefore = imageService.getImages(PageRequest.ofSize(10));
         Long imageId = imagesBefore.stream()
                 .filter(img -> img.getFileName().contains("sample-image"))
                 .findFirst()
-                .map(ImageModel::getId)
+                .map(ImageResponse::getId)
                 .orElseThrow();
 
         imageService.deleteImage(imageId);
-        List<ImageModel> imagesAfter = imageService.getImages();
+        var imagesAfter = imageService.getImages(PageRequest.ofSize(10));
         assertFalse(imagesAfter.stream().anyMatch(img -> img.getId().equals(imageId)));
     }
 
@@ -86,16 +95,17 @@ class ImageServiceIntegrationTest extends AbstractSpringBootTest {
         Files.copy(getClass().getResourceAsStream("/sample-image.jpg"), sampleImagePath);
 
         MockMultipartFile file = new MockMultipartFile("file", "sample-image.jpg", "image/jpeg", Files.readAllBytes(sampleImagePath));
-        imageService.uploadImage(file, "Single Image Description", List.of("FOOD"));
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Single Image Description", List.of("FOOD"));
+        imageService.uploadImage(uploadImageCommand);
 
-        List<ImageModel> images = imageService.getImages();
+        var images = imageService.getImages(PageRequest.ofSize(10));
         Long imageId = images.stream()
                 .filter(img -> img.getFileName().contains("sample-image"))
                 .findFirst()
-                .map(ImageModel::getId)
+                .map(ImageResponse::getId)
                 .orElseThrow();
 
-        ImageModel image = imageService.getImage(imageId);
+        var image = imageService.getImage(imageId);
         assertTrue(image.getFileName().contains("sample-image"));
         assertNotNull(image.getFilePath());
         assertNotNull(image.getThumbnailPath());
@@ -111,11 +121,13 @@ class ImageServiceIntegrationTest extends AbstractSpringBootTest {
 
         MockMultipartFile file1 = new MockMultipartFile("file", "sample-image1.jpg", "image/jpeg", Files.readAllBytes(sampleImagePath1));
         MockMultipartFile file2 = new MockMultipartFile("file", "sample-image2.jpg", "image/jpeg", Files.readAllBytes(sampleImagePath2));
-        imageService.uploadImage(file1, "Landscape 1", List.of("LANDSCAPE"));
-        imageService.uploadImage(file2, "Landscape 2", List.of("LANDSCAPE"));
+        UploadImageCommand uploadImageCommand1 = new UploadImageCommand(file1, "Landscape 1", List.of("LANDSCAPE"));
+        UploadImageCommand uploadImageCommand2 = new UploadImageCommand(file2, "Landscape 2", List.of("LANDSCAPE"));
+        imageService.uploadImage(uploadImageCommand1);
+        imageService.uploadImage(uploadImageCommand2);
 
-        List<ImageModel> images = imageService.getImages();
-        List<ImageModel> filteredImages = images.stream()
+        var images = imageService.getImages(PageRequest.ofSize(10));
+        var filteredImages = images.stream()
                 .filter(img -> img.getCategories().contains("LANDSCAPE"))
                 .toList();
 

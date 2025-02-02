@@ -1,7 +1,7 @@
 package com.example.imagehub.application.service;
 
 import com.example.imagehub.application.port.out.CategoryPort;
-import com.example.imagehub.domain.model.CategoryModel;
+import com.example.imagehub.domain.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,20 +28,20 @@ class CategoryServiceTest {
 
     @Test
     void testAddCategory() {
-        CategoryModel category = new CategoryModel(null, "TEST");
-        doNothing().when(CategoryPort).create(category);
+        Category category = Category.of("TEST");
+        doNothing().when(CategoryPort).add(category);
 
         categoryService.addCategory("TEST");
 
-        verify(CategoryPort, times(1)).create(any(CategoryModel.class));
+        verify(CategoryPort, times(1)).add(any(Category.class));
     }
 
     @Test
     void testGetCategories() {
-        List<CategoryModel> categories = List.of(new CategoryModel(1L, "PERSON"), new CategoryModel(2L, "ANIMAL"));
+        List<Category> categories = List.of(Category.of("PERSON"), Category.of("ANIMAL"));
         when(CategoryPort.findAll()).thenReturn(categories);
 
-        List<CategoryModel> result = categoryService.getCategories();
+        List<Category> result = categoryService.getCategories();
 
         assertEquals(2, result.size());
         verify(CategoryPort, times(1)).findAll();

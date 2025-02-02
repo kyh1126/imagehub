@@ -1,38 +1,53 @@
 package com.example.imagehub.application.service;
 
 import com.example.imagehub.application.port.in.AuthUseCase;
+import com.example.imagehub.application.port.in.SignInCommand;
+import com.example.imagehub.application.port.in.SignUpCommand;
+import com.example.imagehub.application.port.out.CreateUserPort;
 import com.example.imagehub.application.port.out.TokenProviderPort;
-import com.example.imagehub.application.port.out.UserPort;
-import com.example.imagehub.domain.model.UserModel;
+import com.example.imagehub.common.UseCase;
+import com.example.imagehub.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @RequiredArgsConstructor
+@UseCase
+@Transactional(readOnly = true)
 public class AuthService implements AuthUseCase {
-    private final UserPort userPort;
+
+    private final CreateUserPort createUserPort;
     private final TokenProviderPort tokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
+    @Transactional
     @Override
-    public String signUp(UserModel userModel) {
-        userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
-        userPort.create(userModel);
-        return "User registered successfully";
+    public void signUp(SignUpCommand signUpCommand) {
+        User user = User.of(signUpCommand, passwordEncoder);
+
+        createUserPort.create(user);
     }
 
     @Override
-    public String login(String userId, String password) {
-        var unauthenticatedToken = UsernamePasswordAuthenticationToken.unauthenticated(userId, password);
+    public String login(SignInCommand signInCommand) {
+        var authentication = authenticate(signInCommand);
+
+        return tokenProvider.generateToken(authentication);
+    }
+
+    private Authentication authenticate(SignInCommand signInCommand) {
+        var unauthenticatedToken =
+                UsernamePasswordAuthenticationToken.unauthenticated(signInCommand.getUserId(), signInCommand.getPassword());
         var authentication = authenticationManager.authenticate(unauthenticatedToken);
+
         if (!authentication.isAuthenticated()) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        return tokenProvider.generateToken(authentication);
+        return authentication;
     }
 }

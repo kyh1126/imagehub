@@ -1,6 +1,6 @@
 package com.example.imagehub.adapter.out.persistence;
 
-import com.example.imagehub.domain.model.CategoryModel;
+import com.example.imagehub.domain.Category;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "categories")
-public class CategoryJpaEntity {
+public class CategoryJpaEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,7 +19,7 @@ public class CategoryJpaEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
-    public static CategoryJpaEntity create(CategoryModel model) {
+    public static CategoryJpaEntity create(Category model) {
         CategoryJpaEntity categoryJpaEntity = new CategoryJpaEntity();
 
         categoryJpaEntity.name = model.getName();

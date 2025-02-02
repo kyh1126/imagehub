@@ -1,16 +1,18 @@
 package com.example.imagehub.application.port.out;
 
-import com.example.imagehub.domain.model.CategoryModel;
+import com.example.imagehub.domain.Category;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CategoryPort {
-    void create(CategoryModel category);
 
-    List<CategoryModel> findAll();
+    void add(Category category);
 
-    Optional<CategoryModel> findById(Long id);
+    List<Category> findAll();
+
+    Optional<Category> findById(Long id);
 
     void deleteById(Long id);
+
 }

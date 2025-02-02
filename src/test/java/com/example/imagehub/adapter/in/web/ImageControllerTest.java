@@ -1,12 +1,17 @@
 package com.example.imagehub.adapter.in.web;
 
+import com.example.imagehub.adapter.in.ImageController;
 import com.example.imagehub.application.port.in.ImageUseCase;
-import com.example.imagehub.domain.model.ImageModel;
+import com.example.imagehub.application.port.in.UploadImageCommand;
+import com.example.imagehub.application.port.out.ImageResponse;
+import com.example.imagehub.domain.Image;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,40 +26,47 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ImageControllerTest {
 
+    private final PageRequest pageRequest = PageRequest.ofSize(10);
     private MockMvc mockMvc;
-
     @InjectMocks
     private ImageController imageController;
-
     @Mock
     private ImageUseCase imageUseCase;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(imageController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(imageController)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver()).build();
     }
 
     @Test
     void testUploadImage() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "test.jpg", "image/jpeg", new byte[10]);
-        doNothing().when(imageUseCase).uploadImage(any(), any(), any());
+        String jsonRequest = "{\"description\":\"Test Description\",\"categories\":[\"PERSON\"]}";
+        MockMultipartFile requestPart = new MockMultipartFile(
+                "request", "test.jpg", "application/json", jsonRequest.getBytes()
+        );
+
+        doNothing().when(imageUseCase).uploadImage(any());
 
         mockMvc.perform(multipart("/images")
                         .file(file)
-                        .param("description", "Test Description")
-                        .param("categories", "PERSON"))
+                        .file(requestPart)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Image uploaded successfully"));
     }
 
     @Test
     void testGetImages() throws Exception {
-        List<ImageModel> images = List.of(new ImageModel(
-                1L, "test.jpg", "Test Description", List.of("PERSON"),
-                "uploads/test.jpg", "thumbnails/thumb_test.jpg"));
+        // 빈 바이트 배열 (10바이트)
+        var file = new MockMultipartFile("file", "test.jpg", "image/jpeg", new byte[10]);
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Test Description", List.of("PERSON"));
+        Image image = Image.of(uploadImageCommand, "test.jpg", "uploads", "thumbnails/thumb_test.jpg");
+        var images = List.of(ImageResponse.from(image));
 
-        when(imageUseCase.getImages()).thenReturn(images);
+        when(imageUseCase.getImages(pageRequest)).thenReturn(images);
 
         mockMvc.perform(get("/images")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -66,11 +78,12 @@ class ImageControllerTest {
 
     @Test
     void testGetImageById() throws Exception {
-        ImageModel image = new ImageModel(
-                1L, "test.jpg", "Test Description", List.of("PERSON"),
-                "uploads/test.jpg", "thumbnails/thumb_test.jpg");
+        // 빈 바이트 배열 (10바이트)
+        var file = new MockMultipartFile("file", "test.jpg", "image/jpeg", new byte[10]);
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Test Description", List.of("PERSON"));
+        Image image = Image.of(uploadImageCommand, "test.jpg", "uploads", "thumbnails/thumb_test.jpg");
 
-        when(imageUseCase.getImage(1L)).thenReturn(image);
+        when(imageUseCase.getImage(1L)).thenReturn(ImageResponse.from(image));
 
         mockMvc.perform(get("/images/1")
                         .contentType(MediaType.APPLICATION_JSON))

@@ -1,13 +1,18 @@
 package com.example.imagehub.application.service;
 
-import com.example.imagehub.application.port.out.ImagePort;
-import com.example.imagehub.domain.model.ImageModel;
+import com.example.imagehub.application.port.in.UploadImageCommand;
+import com.example.imagehub.application.port.out.LoadImagePort;
+import com.example.imagehub.application.port.out.UpdateImagePort;
+import com.example.imagehub.application.port.out.UploadImagePort;
+import com.example.imagehub.domain.Image;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -16,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -25,11 +29,18 @@ class ImageServiceTest {
 
     private final String uploadDir = "src/test/uploads";
     private final String thumbnailDir = "src/test/thumbnails";
+
     @Spy
     @InjectMocks
     private ImageService imageService;
     @Mock
-    private ImagePort imagePort;
+    private UploadImagePort uploadImagePort;
+    @Mock
+    private LoadImagePort loadImagePort;
+    @Mock
+    private UpdateImagePort updateImagePort;
+    @Mock
+    private Pageable pageRequest;
 
     @BeforeEach
     void setUp() {
@@ -44,11 +55,12 @@ class ImageServiceTest {
         Files.createDirectories(sampleImagePath.getParent());
         Files.copy(getClass().getResourceAsStream("/sample-image.jpg"), sampleImagePath, StandardCopyOption.REPLACE_EXISTING);
         MockMultipartFile file = new MockMultipartFile("file", "sample-image.jpg", "image/jpeg", Files.readAllBytes(sampleImagePath));
-        doNothing().when(imagePort).create(any(ImageModel.class));
+        doNothing().when(uploadImagePort).upload(any(Image.class));
 
-        imageService.uploadImage(file, "Test Description", List.of("PERSON"));
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Test Description", List.of("PERSON"));
+        imageService.uploadImage(uploadImageCommand);
 
-        verify(imagePort, times(1)).create(any(ImageModel.class));
+        verify(uploadImagePort, times(1)).upload(any(Image.class));
 
         // 썸네일 디렉토리에서 "thumb_"로 시작하고 "sample-image.jpg"로 끝나는 파일 찾기
         Path thumbnailDir = Path.of("src/test/thumbnails");
@@ -60,48 +72,55 @@ class ImageServiceTest {
 
     @Test
     void testGetImages() {
-        List<ImageModel> images = List.of(
-                new ImageModel(1L, "test.jpg", "Test Description", List.of("PERSON"),
-                        "uploads/test.jpg", "thumbnails/thumb_test.jpg")
-        );
+        // 빈 바이트 배열 (10바이트)
+        var file = new MockMultipartFile("file", "test.jpg", "image/jpeg", new byte[10]);
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Test Description", List.of("PERSON"));
+        Image image = Image.of(uploadImageCommand, "test.jpg", uploadDir, thumbnailDir + "/thumb_test.jpg");
+        List<Image> images = List.of(image);
 
-        when(imagePort.findAll()).thenReturn(images);
+        when(loadImagePort.getImages(any(Pageable.class))).thenReturn(images);
 
-        List<ImageModel> result = imageService.getImages();
+        var result = imageService.getImages(PageRequest.ofSize(10));
 
         assertEquals(1, result.size());
-        assertEquals("test.jpg", result.get(0).getFileName());
-        assertEquals("uploads/test.jpg", result.get(0).getFilePath());
-        assertEquals("thumbnails/thumb_test.jpg", result.get(0).getThumbnailPath());
-        verify(imagePort, times(1)).findAll();
+
+        var firstImage = result.getFirst();
+        assertEquals("test.jpg", firstImage.getFileName());
+        assertEquals(uploadDir + "/test.jpg", firstImage.getFilePath());
+        assertEquals(thumbnailDir + "/thumb_test.jpg", firstImage.getThumbnailPath());
+        verify(loadImagePort, times(1)).getImages(any(Pageable.class));
     }
 
     @Test
     void testGetImageById() {
-        ImageModel image = new ImageModel(1L, "test.jpg", "Test Description", List.of("PERSON"),
-                "uploads/test.jpg", "thumbnails/thumb_test.jpg");
+        // 빈 바이트 배열 (10바이트)
+        var file = new MockMultipartFile("file", "test.jpg", "image/jpeg", new byte[10]);
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Test Description", List.of("PERSON"));
+        Image image = Image.of(uploadImageCommand, "test.jpg", uploadDir, thumbnailDir + "/thumb_test.jpg");
 
-        when(imagePort.findById(1L)).thenReturn(Optional.of(image));
+        when(loadImagePort.getImage(1L)).thenReturn(image);
 
-        ImageModel result = imageService.getImage(1L);
+        var result = imageService.getImage(1L);
 
         assertNotNull(result);
         assertEquals("test.jpg", result.getFileName());
-        assertEquals("uploads/test.jpg", result.getFilePath());
-        assertEquals("thumbnails/thumb_test.jpg", result.getThumbnailPath());
-        verify(imagePort, times(1)).findById(1L);
+        assertEquals(uploadDir + "/test.jpg", result.getFilePath());
+        assertEquals(thumbnailDir + "/thumb_test.jpg", result.getThumbnailPath());
+        verify(loadImagePort, times(1)).getImage(1L);
     }
 
     @Test
     void testDeleteImage() {
-        ImageModel image = new ImageModel(1L, "test.jpg", "Test Description", List.of("PERSON"),
-                "uploads/test.jpg", "thumbnails/thumb_test.jpg");
+        // 빈 바이트 배열 (10바이트)
+        var file = new MockMultipartFile("file", "test.jpg", "image/jpeg", new byte[10]);
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Test Description", List.of("PERSON"));
+        Image image = Image.of(uploadImageCommand, "test.jpg", uploadDir, thumbnailDir + "/thumb_test.jpg");
 
-        when(imagePort.findById(1L)).thenReturn(Optional.of(image));
-        doNothing().when(imagePort).deleteById(1L);
+        when(loadImagePort.getImage(1L)).thenReturn(image);
+        doNothing().when(updateImagePort).deleteById(1L);
 
         imageService.deleteImage(1L);
 
-        verify(imagePort, times(1)).deleteById(1L);
+        verify(updateImagePort, times(1)).deleteById(1L);
     }
 }

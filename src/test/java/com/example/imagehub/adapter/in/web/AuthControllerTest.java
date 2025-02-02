@@ -1,15 +1,19 @@
 package com.example.imagehub.adapter.in.web;
 
-import com.example.imagehub.application.port.in.AuthUseCase;
-import com.example.imagehub.application.port.in.CategoryUseCase;
-import com.example.imagehub.application.port.in.ImageUseCase;
-import com.example.imagehub.domain.model.ImageModel;
+import com.example.imagehub.adapter.in.AuthController;
+import com.example.imagehub.adapter.in.CategoryController;
+import com.example.imagehub.adapter.in.ImageController;
+import com.example.imagehub.application.port.in.*;
+import com.example.imagehub.application.port.out.ImageResponse;
+import com.example.imagehub.domain.Image;
 import com.example.imagehub.infrastructure.config.TestSecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -31,6 +35,7 @@ class AuthControllerTest {
 
     private final String validJwtToken = "Bearer valid.jwt.token";
     private final String invalidJwtToken = "Bearer invalid.jwt.token";
+    private final PageRequest pageRequest = PageRequest.ofSize(10);
     @Autowired
     private MockMvc mockMvc;
     @MockitoBean
@@ -62,7 +67,8 @@ class AuthControllerTest {
 
     @Test
     void loginShouldReturnToken() throws Exception {
-        when(authUseCase.login("test1", "password123")).thenReturn("mockedToken");
+        SignInCommand signInCommand = new SignInCommand("test1", "password123");
+        when(authUseCase.login(signInCommand)).thenReturn("mockedToken");
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -73,10 +79,17 @@ class AuthControllerTest {
 
     @Test
     void testGetImages_WithValidToken() throws Exception {
-        List<ImageModel> images = List.of(new ImageModel(
-                1L, "test.jpg", "Test Description", List.of("PERSON"),
-                "uploads/test.jpg", "thumbnails/thumb_test.jpg"));
-        when(imageUseCase.getImages()).thenReturn(images);
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.jpg",
+                "image/jpeg",
+                new byte[10]  // 빈 바이트 배열 (10바이트)
+        );
+        UploadImageCommand uploadImageCommand = new UploadImageCommand(file, "Test Description", List.of("PERSON"));
+        Image image = Image.of(uploadImageCommand, "test.jpg", "uploads", "thumbnails");
+        var images = List.of(ImageResponse.from(image));
+
+        when(imageUseCase.getImages(pageRequest)).thenReturn(images);
 
         Instant now = Instant.now();
         Jwt mockJwt = new Jwt(
@@ -126,7 +139,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/categories")
                         .header("Authorization", validJwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("name", "LANDSCAPE2"))
+                        .content("{\"name\": \"LANDSCAPE2\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Category added successfully"));
     }
@@ -144,7 +157,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/categories")
                         .header("Authorization", validJwtToken)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("name", "LANDSCAPE2"))
+                        .content("{\"name\": \"LANDSCAPE2\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Category added successfully"));
     }

@@ -2,6 +2,7 @@ package com.example.imagehub.infrastructure.database;
 
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Profile;
 import javax.sql.DataSource;
 import java.io.IOException;
 
+@Slf4j
 @Configuration
 @Profile("!test")
 public class EmbeddedPostgresConfig {
@@ -31,7 +33,7 @@ public class EmbeddedPostgresConfig {
             try {
                 embeddedPostgres.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
         }
     }
