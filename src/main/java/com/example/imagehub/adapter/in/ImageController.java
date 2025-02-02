@@ -5,6 +5,8 @@ import com.example.imagehub.application.port.in.ImageUseCase;
 import com.example.imagehub.application.port.in.UploadImageCommand;
 import com.example.imagehub.application.port.out.ImageResponse;
 import com.example.imagehub.common.WebAdapter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,11 +34,10 @@ public class ImageController {
     @Operation(summary = "이미지 업로드")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, String> uploadImage(@RequestPart("file") MultipartFile file,
-                                           @RequestPart("request") @Valid UploadImageRequest request) {
+                                           @RequestPart("request") String requestJson) throws JsonProcessingException {
+        UploadImageRequest request = new ObjectMapper().readValue(requestJson, UploadImageRequest.class);
         UploadImageCommand uploadImageCommand = new UploadImageCommand(file, request.getDescription(), request.getCategories());
-
         imageUseCase.uploadImage(uploadImageCommand);
-
         return Map.of("message", "Image uploaded successfully");
     }
 

@@ -137,7 +137,7 @@ public class ImageService implements ImageUseCase {
                     .size(100, 100)
                     .toFile(outputPath.toFile());
 
-            return thumbnailName;
+            return outputPath.toString();
         } catch (IOException e) {
             throw new RuntimeException("Failed to generate thumbnail", e);
         }
