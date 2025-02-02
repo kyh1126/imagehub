@@ -251,3 +251,13 @@ curl -X 'DELETE' \
 # Image Hub ERD
 
 ![ERD.png](ERD.png)
+
+
+## TO-DO
+
+### main
+- response, exception handler - 예외 발생 시 JSON 형식으로 응답 반환 ({"error": "Invalid Token"})
+- ROLE, Default category ENUM화, validation 추가
+
+### test
+- 만료 테스트 코드 추가
